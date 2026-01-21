@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مغامرة فصل الكود – CodeClassroom Adventure</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Cairo', 'Comic Neue', sans-serif;
+      background: #e0f7fa;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    #classroom {
+      background: url('https://images.unsplash.com/photo-1588075592446-265fd1e6e76f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+      padding: 25px;
+      position: relative;
+    }
+
+    header {
+      background: rgba(255,255,255,0.92);
+      padding: 20px 30px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+    }
+
+    h1 { color: #e91e63; font-size: 2.6rem; margin-bottom: 8px; }
+    .user-info { display: flex; align-items: center; gap: 25px; }
+
+    #avatar-display {
+      width: 90px;
+      height: 90px;
+      background: #fff176 center/cover;
+      border-radius: 50%;
+      border: 6px solid #2196f3;
+      cursor: pointer;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+    }
+
+    #points { font-size: 1.7rem; font-weight: bold; color: #e91e63; }
+
+    .container { max-width: 1200px; margin: 0 auto; text-align: center; }
+    .levels { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 40px; }
+
+    .level-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 30px;
+      width: 340px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .level-card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    }
+
+    .level-card h2 { color: #2196f3; margin-bottom: 12px; font-size: 1.8rem; }
+
+    /* Robot Teacher */
+    #robot-teacher {
+      position: fixed;
+      bottom: 120px;
+      right: 50px;
+      width: 180px;
+      height: 240px;
+      background: url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+      border-radius: 45% 45% 25% 25%;
+      border: 7px solid #009688;
+      box-shadow: 0 15px 35px rgba(0,150,136,0.5);
+      z-index: 100;
+    }
+
+    #speech-bubble {
+      position: absolute;
+      top: -140px;
+      left: -280px;
+      background: #ffffff;
+      padding: 20px 28px;
+      border-radius: 30px;
+      border: 6px solid #00bcd4;
+      width: 320px;
+      font-size: 1.2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      display: none;
+      text-align: center;
+    }
+
+    #speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -24px;
+      right: 50px;
+      border: 14px solid transparent;
+      border-top-color: #00bcd4;
+    }
+
+    /* AI Assistant */
+    #ai-assistant {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 90px;
+      height: 90px;
+      background: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+      border-radius: 50%;
+      border: 7px solid #ffeb3b;
+      box-shadow: 0 12px 30px rgba(255,235,59,0.6);
+      cursor: pointer;
+      z-index: 200;
+    }
+
+    #chat-window {
+      position: fixed;
+      bottom: 130px;
+      right: 30px;
+      width: 360px;
+      height: 440px;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 150;
+    }
+
+    #chat-header {
+      background: #ffeb3b;
+      padding: 18px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.4rem;
+      color: #333;
+    }
+
+    #chat-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: #fafafa;
+      font-size: 1.1rem;
+    }
+
+    #chat-input {
+      display: flex;
+      padding: 15px;
+      border-top: 1px solid #ddd;
+    }
+
+    #chat-input input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 3px solid #ffeb3b;
+      border-radius: 35px;
+      margin-right: 12px;
+      font-size: 1.1rem;
+    }
+
+    #chat-input button {
+      padding: 14px 24px;
+      background: #ffeb3b;
+      border: none;
+      border-radius: 35px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    /* Avatar Modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 40px;
+      max-width: 680px;
+      text-align: center;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.4);
+    }
+
+    .modal-content h2 {
+      color: #2196f3;
+      margin-bottom: 25px;
+      font-size: 2.2rem;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .avatar-option {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 5px solid #ffeb3b;
+      cursor: pointer;
+      object-fit: cover;
+      transition: all 0.25s;
+    }
+
+    .avatar-option:hover {
+      border-color: #e91e63;
+      transform: scale(1.12);
+    }
+
+    .modal-content button {
+      padding: 16px 32px;
+      background: #ffeb3b;
+      border: none;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.3rem;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="classroom">
+  <header>
+    <div>
+      <h1>مغامرة فصل الكود</h1>
+      <p>مرحبا يا <span id="username">ضيف</span>! جاهز للتعلم؟</p>
+    </div>
+    <div class="user-info">
+      <div id="avatar-display" onclick="openAvatarModal()"></div>
+      <div id="points">نقاط: 0</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>اختر مسار التعلم</h2>
+    <div class="levels">
+      <div class="level-card" onclick="startLevel('beginner')">
+        <h2>المبتدئين</h2>
+        <p>تسلسل الأوامر والحركات الأساسية<br>متاهات ورقصات روبوت ممتعة!</p>
+      </div>
+      <div class="level-card" onclick="startLevel('intermediate')">
+        <h2>المتوسط</h2>
+        <p>الحلقات، الشروط، تصحيح الأخطاء<br>اصنع ألعابًا وقصصًا!</p>
+      </div>
+      <div class="level-card" onclick="startLevel('advanced')">
+        <h2>المتقدم</h2>
+        <p>الدوال، المتغيرات، الخوارزميات<br>أنشئ مشاريعك الخاصة!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Robot Teacher -->
+  <div id="robot-teacher">
+    <div id="speech-bubble">أهلاً بك! اختر شخصيتك وابدأ المغامرة البرمجية! 🌟<br>Hello! Pick your avatar and let's start coding!</div>
+  </div>
+
+  <!-- AI Assistant -->
+  <div id="ai-assistant" onclick="toggleChat()"></div>
+
+  <!-- AI Chat Window -->
+  <div id="chat-window">
+    <div id="chat-header">مساعد الذكاء الاصطناعي – اسألني أي شيء!</div>
+    <div id="chat-body">
+      <p><strong>المساعد:</strong> مرحبا! ماذا تريد أن تعرف عن البرمجة؟ 😊</p>
+    </div>
+    <div id="chat-input">
+      <input type="text" id="chat-msg" placeholder="اكتب سؤالك هنا..." />
+      <button onclick="sendMessage()">إرسال</button>
+    </div>
+  </div>
+
+  <!-- Avatar Selection Modal -->
+  <div id="avatar-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>اختر شخصيتك المفضلة!</h2>
+      <div class="avatar-grid">
+        <img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=300" alt="Boy"    onclick="selectAvatar(this.src)" class="avatar-option">
+        <img src="https://images.unsplash.com/photo-1599834562135-b6fc90e642ca?w=300" alt="Girl"   onclick="selectAvatar(this.src)" class="avatar-option">
+        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300" alt="Robot"  onclick="selectAvatar(this.src)" class="avatar-option">
+        <img src="https://images.unsplash.com/photo-1546776310-eef45dd6d63c?w=300" alt="Cat"     onclick="selectAvatar(this.src)" class="avatar-option">
+        <img src="https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=300" alt="Fox"    onclick="selectAvatar(this.src)" class="avatar-option">
+        <img src="https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300" alt="Panda"   onclick="selectAvatar(this.src)" class="avatar-option">
+      </div>
+      <button onclick="closeModal()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let user = {
+    name: "ضيف",
+    avatar: "",
+    points: 0
+  };
+
+  // Load saved data
+  if (localStorage.getItem("codeClassroomUser")) {
+    user = JSON.parse(localStorage.getItem("codeClassroomUser"));
+    document.getElementById("username").textContent = user.name;
+    if (user.avatar) {
+      document.getElementById("avatar-display").style.backgroundImage = `url('${user.avatar}')`;
+    }
+    document.getElementById("points").textContent = `نقاط: ${user.points}`;
+  } else {
+    // First time → show avatar modal after welcome
+    setTimeout(openAvatarModal, 2500);
+  }
+
+  function saveProgress() {
+    localStorage.setItem("codeClassroomUser", JSON.stringify(user));
+  }
+
+  function updatePoints() {
+    document.getElementById("points").textContent = `نقاط: ${user.points}`;
+  }
+
+  function startLevel(category) {
+    const names = { beginner: "المبتدئين", intermediate: "المتوسط", advanced: "المتقدم" };
+    alert(`جاري الدخول إلى ${names[category]}! 🚀`);
+    setTimeout(() => {
+      const earned = Math.floor(Math.random() * 250) + 80;
+      user.points += earned;
+      updatePoints();
+      saveProgress();
+      showRobotMessage(`ممتاز! +${earned} نقاط! 🎉\nGreat job! +${earned} points!`);
+    }, 1800);
+  }
+
+  function showRobotMessage(text) {
+    const bubble = document.getElementById("speech-bubble");
+    bubble.textContent = text;
+    bubble.style.display = "block";
+    setTimeout(() => bubble.style.display = "none", 8000);
+  }
+
+  // Avatar Modal
+  function openAvatarModal() {
+    document.getElementById("avatar-modal").classList.remove("hidden");
+  }
+
+  function closeModal() {
+    document.getElementById("avatar-modal").classList.add("hidden");
+  }
+
+  function selectAvatar(src) {
+    user.avatar = src;
+    document.getElementById("avatar-display").style.backgroundImage = `url('${src}')`;
+    saveProgress();
+    showRobotMessage("اختيار رائع! الآن أنت جاهز للبرمجة! 🌟");
+    closeModal();
+  }
+
+  // AI Chat
+  function toggleChat() {
+    const chat = document.getElementById("chat-window");
+    chat.style.display = chat.style.display === "flex" ? "none" : "flex";
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("chat-msg");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const body = document.getElementById("chat-body");
+    body.innerHTML += `<p><strong>أنت:</strong> ${msg}</p>`;
+
+    let reply = "سؤال مميز! ";
+    if (msg.includes("حلقة") || msg.toLowerCase().includes("loop")) {
+      reply += "الحلقة تكرر الأوامر. جرب بلوك 'كرر'!";
+    } else if (msg.includes("متغير") || msg.toLowerCase().includes("variable")) {
+      reply += "المتغير يخزن قيمة مثل score = 100";
+    } else {
+      reply += "واصل الاستكشاف! ماذا تحاول بناءه؟ 😄";
+    }
+
+    setTimeout(() => {
+      body.innerHTML += `<p><strong>المساعد:</strong> ${reply}</p>`;
+      body.scrollTop = body.scrollHeight;
+    }, 900);
+
+    input.value = "";
+  }
+
+  // Initial messages
+  setTimeout(() => {
+    showRobotMessage("أهلاً بك في مغامرة فصل الكود! اختر شخصيتك وابدأ التعلم! 🚀");
+  }, 1500);
+</script>
+</body>
+</html>
